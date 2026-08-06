@@ -1,0 +1,4 @@
+experiment,learning_rate,batch_size,dropout_rate,best_epoch,best_val_loss,best_val_accuracy,training_time_seconds
+Experiment 1,0.001,32,0.3,7,0.431488,0.843457,528.524997
+Experiment 2,0.0005,32,0.3,7,0.461577,0.834568,272.835204
+Experiment 3,0.001,64,0.5,3,0.610635,0.786667,201.960621
