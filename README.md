@@ -4,14 +4,14 @@ A PyTorch capstone project that classifies satellite images into 10 land-use cat
 
 ## Project Overview
 
-This project compares:
+This project builds and evaluates deep learning models for satellite image classification using the EuroSAT RGB dataset.
+
+The project compares:
 
 1. A custom convolutional neural network trained from scratch
 2. A pretrained ResNet18 model used for transfer learning
 
-The workflow includes preprocessing, data augmentation, stratified dataset splitting,
-hyperparameter tuning, early stopping, model testing, confusion matrices, and
-misclassification analysis.
+The workflow includes preprocessing, data augmentation, stratified dataset splitting, hyperparameter tuning, early stopping, model testing, confusion matrices, and misclassification analysis.
 
 ## Dataset
 
@@ -38,29 +38,29 @@ The dataset was split into:
 
 ### Custom CNN
 
-The custom CNN uses four convolution blocks with batch normalization, ReLU,
-max pooling, adaptive average pooling, dropout, and fully connected layers.
+The custom CNN uses four convolution blocks with batch normalization, ReLU activation, max pooling, adaptive average pooling, dropout, and fully connected layers.
 
 ### ResNet18
 
-The ResNet18 model uses pretrained ImageNet features. Its feature layers were
-frozen and the final classification layer was replaced with a 10-class layer.
+The ResNet18 model uses pretrained ImageNet features. Its feature layers were frozen and the final classification layer was replaced with a 10-class layer.
 
 ## Hyperparameter Tuning
 
-| Experiment | Learning Rate | Batch Size | Dropout | Best Validation Accuracy |
-|---|---:|---:|---:|---:|
-| Experiment 1 | 0.0010 | 32 | 0.30 | 84.35% |
-| Experiment 2 | 0.0005 | 32 | 0.30 | 83.46% |
-| Experiment 3 | 0.0010 | 64 | 0.50 | 78.67% |
+The best custom CNN setting was selected using the **lowest validation loss**.
 
-Experiment 1 was selected for the final custom CNN.
+| Experiment | Learning Rate | Batch Size | Dropout | Best Validation Loss | Validation Accuracy at Best Loss |
+|---|---:|---:|---:|---:|---:|
+| Experiment 1 | 0.0010 | 32 | 0.30 | **0.4315** | 84.35% |
+| Experiment 2 | 0.0005 | 32 | 0.30 | 0.4616 | 83.46% |
+| Experiment 3 | 0.0010 | 64 | 0.50 | 0.6106 | 78.67% |
+
+Experiment 1 was selected for the final custom CNN because it achieved the lowest validation loss.
 
 ## Final Results
 
 | Model | Validation Accuracy | Test Accuracy | Precision | Recall | F1-score |
 |---|---:|---:|---:|---:|---:|
-| Custom CNN | 91.33% | 92.22% | 92.44% | 92.22% | 92.12% |
+| Custom CNN | 91.33% | **92.22%** | **92.44%** | **92.22%** | **92.12%** |
 | ResNet18 | 77.36% | 78.67% | 78.78% | 78.67% | 78.37% |
 
 The custom CNN achieved the best overall performance.
@@ -83,9 +83,7 @@ The custom CNN achieved the best overall performance.
 
 ![Confusion matrix](images/confusion_matrix.png)
 
-The most difficult class was **PermanentCrop**, with a recall of 70.67%.
-It was most frequently predicted as **HerbaceousVegetation**. In the test set,
-75 PermanentCrop images were classified as HerbaceousVegetation.
+The most difficult class was **PermanentCrop**, with a recall of **70.67%**. It was most frequently predicted as **HerbaceousVegetation**. In the test set, **75 PermanentCrop images** were classified as HerbaceousVegetation.
 
 ![Normalized confusion matrix](images/normalized_confusion_matrix.png)
 
@@ -101,9 +99,9 @@ It was most frequently predicted as **HerbaceousVegetation**. In the test set,
 
 ## Main Findings
 
-- The custom CNN achieved 92.22% test accuracy.
-- Its weighted F1-score was 92.12%.
-- ResNet18 achieved 78.67% test accuracy in the frozen-feature setup.
+- The custom CNN achieved **92.22%** test accuracy.
+- Its weighted F1-score was **92.12%**.
+- ResNet18 achieved **78.67%** test accuracy in the frozen-feature setup.
 - Forest and SeaLake were among the easiest classes.
 - PermanentCrop was the most difficult class.
 - The largest confusion was PermanentCrop being predicted as HerbaceousVegetation.
@@ -111,11 +109,10 @@ It was most frequently predicted as **HerbaceousVegetation**. In the test set,
 ## Project Structure
 
 ```text
-EuroSAT-Capstone-Completed/
+Capstone-Project-Deep-Learning-with-PyTorch/
 ├── EuroSAT_Capstone_Project.ipynb
 ├── README.md
 ├── requirements.txt
-├── .gitignore
 ├── images/
 ├── results/
 ├── report/
@@ -142,7 +139,7 @@ The uploaded notebook already contains the completed outputs and figures.
 - Use a larger input image size
 - Try ResNet34 or EfficientNet
 - Add Grad-CAM visualizations
-- Use more focused augmentation for difficult classes
+- Use more focused augmentation for difficult vegetation classes
 
 ## Author
 
