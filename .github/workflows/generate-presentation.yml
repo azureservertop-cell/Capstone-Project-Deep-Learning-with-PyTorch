@@ -1,0 +1,37 @@
+name: Generate Final Presentation PPTX
+
+on:
+  push:
+    paths:
+      - 'scripts/generate_presentation.py'
+      - '.github/workflows/generate-presentation.yml'
+      - 'images/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-presentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-pptx matplotlib
+      - name: Generate PPTX
+        run: python scripts/generate_presentation.py
+      - name: Commit PPTX
+        run: |
+          git config user.name "azureservertop-cell"
+          git config user.email "azureserver.top@gmail.com"
+          git add presentation/EuroSAT_Capstone_Presentation.pptx
+          if git diff --cached --quiet; then
+            echo "No presentation changes"
+          else
+            git commit -m "Add final presentation PPTX"
+            git push
+          fi
