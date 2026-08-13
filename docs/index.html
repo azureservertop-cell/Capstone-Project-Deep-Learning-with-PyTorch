@@ -12,32 +12,40 @@ section{background:#fff;border:1px solid #d0d7de;border-radius:12px;padding:24px
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
 .metric{text-align:center;background:#f6f8fa;border-radius:10px;padding:20px}
 .metric strong{display:block;font-size:30px;margin-top:8px}
-img{max-width:100%;border-radius:8px}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #d0d7de;text-align:left}
 footer{text-align:center;padding:30px;color:#57606a}
 </style>
 </head>
 <body>
 <header>
 <h1>EuroSAT Satellite Image Classification</h1>
-<p>Custom CNN and ResNet18 · PyTorch Capstone Project</p>
+<p>Final 3-layer Custom CNN and Frozen ResNet18 · PyTorch Capstone Project</p>
 </header>
 <main>
 <section>
 <h2>Final Results</h2>
 <div class="grid">
-<div class="metric">Custom CNN Accuracy<strong>92.22%</strong></div>
-<div class="metric">Custom CNN F1<strong>92.12%</strong></div>
-<div class="metric">ResNet18 Accuracy<strong>78.67%</strong></div>
+<div class="metric">Custom CNN Accuracy<strong>92.07%</strong></div>
+<div class="metric">Custom CNN F1<strong>92.09%</strong></div>
+<div class="metric">ResNet18 Accuracy<strong>82.44%</strong></div>
 </div>
 </section>
 <section>
-<h2>Confusion Matrix</h2>
-<img src="confusion_matrix.png" alt="Confusion Matrix">
+<h2>Final Augmentation Choice</h2>
+<p>The final model uses a restricted random crop <code>scale=(0.8, 1.0)</code> and RandomHorizontalFlip. VerticalFlip, Rotation, and ColorJitter were tested separately but none improved the baseline, so they were not retained.</p>
+<table>
+<tr><th>Setting</th><th>Test Accuracy</th><th>Change</th></tr>
+<tr><td><strong>Final baseline</strong></td><td><strong>92.07%</strong></td><td>0.00 pp</td></tr>
+<tr><td>+ Color Jitter</td><td>91.48%</td><td>-0.59 pp</td></tr>
+<tr><td>+ Vertical Flip</td><td>89.83%</td><td>-2.25 pp</td></tr>
+<tr><td>+ Rotation pipeline</td><td>67.60%</td><td>-24.47 pp</td></tr>
+</table>
+<p><small>The tested rotation pipeline also used resize-and-center-crop steps, so its drop is not interpreted as the isolated effect of rotation itself.</small></p>
 </section>
 <section>
 <h2>Main Finding</h2>
-<p>The custom CNN performed best. PermanentCrop was the most difficult class and
-was frequently confused with HerbaceousVegetation.</p>
+<p>The same course-level 3-layer CNN improved substantially after restricting the crop range and extending manual tuning from four to six epochs. The final result supports using the simpler augmentation pipeline rather than adding preprocessing that did not improve validation or test performance.</p>
+<p>The latest confusion matrix and training workflow are generated directly by the notebook.</p>
 </section>
 </main>
 <footer>Jianye Chen · Fanshawe College</footer>
