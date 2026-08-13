@@ -1,6 +1,6 @@
 # EuroSAT Satellite Image Classification
 
-A PyTorch capstone project that classifies EuroSAT RGB satellite images into 10 land-use categories using course-level deep learning methods.
+A PyTorch capstone project that classifies EuroSAT RGB satellite images into 10 land-use categories using deep learning methods.
 
 ## Project Overview
 
@@ -34,7 +34,7 @@ Split used in the project:
 
 ## Final Custom CNN
 
-The final CNN intentionally stays close to the methods used in class:
+The final CNN uses a simple convolutional architecture:
 
 - Conv2d: 3 → 32
 - Conv2d: 32 → 64
@@ -84,7 +84,7 @@ The custom CNN achieved the best overall performance in the final controlled run
 
 ## Development Finding
 
-An earlier course-level run used the same 3-layer CNN but the default `RandomResizedCrop` and only **4 tuning epochs**. In the controlled comparison it reached **85.60%** test accuracy.
+An earlier baseline run used the same 3-layer CNN but the default `RandomResizedCrop` and only **4 tuning epochs**. In the controlled comparison it reached **85.60%** test accuracy.
 
 Restricting the crop to `scale=(0.8, 1.0)` and increasing tuning to **6 epochs** improved the test result to **92.07%** without increasing the CNN depth.
 
@@ -121,7 +121,9 @@ Capstone-Project-Deep-Learning-with-PyTorch/
 │   ├── model_comparison.csv
 │   └── ablation_results.csv
 ├── report/
+│   └── EuroSAT_Final_Report.pdf
 ├── presentation/
+│   └── EuroSAT_Capstone_Presentation.pptx
 ├── images/
 └── docs/
 ```
@@ -137,7 +139,7 @@ jupyter lab
 
 Open `EuroSAT_Capstone_Project.ipynb` and run the cells from top to bottom.
 
-The notebook contains the final course-level code and recorded result summaries used for the project report.
+The notebook contains the final code and recorded result summaries used for the project report.
 
 ## Final Conclusion
 
