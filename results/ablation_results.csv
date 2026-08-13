@@ -1,0 +1,5 @@
+augmentation_setting,validation_accuracy,test_accuracy,weighted_precision,weighted_recall,weighted_f1,accuracy_change_percentage_points,f1_change_percentage_points
+Incremental Baseline,0.909630,0.920741,0.923729,0.920741,0.920916,0.000000,0.000000
+Color Jitter,0.900988,0.914815,0.917024,0.914815,0.914903,-0.592593,-0.601307
+Vertical Flip,0.887160,0.898272,0.910663,0.898272,0.899469,-2.246914,-2.144718
+Rotation pipeline,0.668642,0.676049,0.733030,0.676049,0.674587,-24.469136,-24.632898
