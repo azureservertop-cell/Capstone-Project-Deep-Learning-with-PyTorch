@@ -1,21 +1,19 @@
 # EuroSAT Satellite Image Classification
 
-A PyTorch capstone project that classifies satellite images into 10 land-use categories.
+A PyTorch capstone project that classifies EuroSAT RGB satellite images into 10 land-use categories using course-level deep learning methods.
 
 ## Project Overview
 
-This project builds and evaluates deep learning models for satellite image classification using the EuroSAT RGB dataset.
+The final project compares:
 
-The project compares:
+1. A **3-layer custom CNN** trained from scratch
+2. A pretrained **ResNet18** used as a frozen feature extractor
 
-1. A custom convolutional neural network trained from scratch
-2. A pretrained ResNet18 model used for transfer learning
-
-The workflow includes preprocessing, data augmentation, stratified dataset splitting, hyperparameter tuning, early stopping, model testing, confusion matrices, and misclassification analysis.
+The workflow includes stratified train/validation/test splitting, simple data augmentation, manual hyperparameter comparison, validation-loss early stopping, test-set evaluation, confusion-matrix analysis, and an augmentation ablation study.
 
 ## Dataset
 
-The EuroSAT RGB dataset contains 27,000 satellite images across 10 classes:
+EuroSAT contains **27,000 RGB satellite images** across 10 classes:
 
 - AnnualCrop
 - Forest
@@ -28,83 +26,88 @@ The EuroSAT RGB dataset contains 27,000 satellite images across 10 classes:
 - River
 - SeaLake
 
-The dataset was split into:
+Split used in the project:
 
-- Training: 70%
-- Validation: 15%
-- Test: 15%
+- Training: **70% (18,900 images)**
+- Validation: **15% (4,050 images)**
+- Test: **15% (4,050 images)**
 
-## Models
+## Final Custom CNN
 
-### Custom CNN
+The final CNN intentionally stays close to the methods used in class:
 
-The custom CNN uses four convolution blocks with batch normalization, ReLU activation, max pooling, adaptive average pooling, dropout, and fully connected layers.
+- Conv2d: 3 → 32
+- Conv2d: 32 → 64
+- Conv2d: 64 → 128
+- BatchNorm + ReLU + MaxPool
+- Flatten
+- Fully connected layer: 8192 → 256
+- Dropout
+- Output layer: 256 → 10
 
-### ResNet18
+### Final Training Transform
 
-The ResNet18 model uses pretrained ImageNet features. Its feature layers were frozen and the final classification layer was replaced with a 10-class layer.
+The best-performing augmentation pipeline was deliberately kept simple:
+
+```python
+transforms.RandomResizedCrop(
+    64,
+    scale=(0.8, 1.0)
+),
+transforms.RandomHorizontalFlip(),
+transforms.ToTensor(),
+transforms.Normalize(mean, std)
+```
+
+`RandomVerticalFlip`, `RandomRotation`, and `ColorJitter` were tested but were **not retained** because none improved the final baseline.
 
 ## Hyperparameter Tuning
 
-The best custom CNN setting was selected using the **lowest validation loss**.
+Three manual settings were compared for **6 epochs**. The final setting was selected using the **lowest validation loss**.
 
 | Experiment | Learning Rate | Batch Size | Dropout | Best Validation Loss | Validation Accuracy at Best Loss |
 |---|---:|---:|---:|---:|---:|
-| Experiment 1 | 0.0010 | 32 | 0.30 | **0.4315** | 84.35% |
-| Experiment 2 | 0.0005 | 32 | 0.30 | 0.4616 | 83.46% |
-| Experiment 3 | 0.0010 | 64 | 0.50 | 0.6106 | 78.67% |
+| **Experiment 2** | **0.0005** | **32** | **0.30** | **0.4457** | **84.12%** |
+| Experiment 1 | 0.0010 | 32 | 0.30 | 0.4675 | 83.51% |
+| Experiment 3 | 0.0010 | 64 | 0.50 | 0.6175 | 78.54% |
 
-Experiment 1 was selected for the final custom CNN because it achieved the lowest validation loss.
+Experiment 2 was selected for the final CNN.
 
 ## Final Results
 
-| Model | Validation Accuracy | Test Accuracy | Precision | Recall | F1-score |
+| Model | Validation Accuracy | Test Accuracy | Precision | Recall | Weighted F1 |
 |---|---:|---:|---:|---:|---:|
-| Custom CNN | 91.33% | **92.22%** | **92.44%** | **92.22%** | **92.12%** |
-| ResNet18 | 77.36% | 78.67% | 78.78% | 78.67% | 78.37% |
+| **Final 3-layer Custom CNN** | **90.96%** | **92.07%** | **92.37%** | **92.07%** | **92.09%** |
+| Frozen ResNet18 | 81.53% | 82.44% | 82.93% | 82.44% | 82.32% |
 
-The custom CNN achieved the best overall performance.
+The custom CNN achieved the best overall performance in the final controlled run.
 
-## Training Curves
+## Development Finding
 
-### Custom CNN
+An earlier course-level run used the same 3-layer CNN but the default `RandomResizedCrop` and only **4 tuning epochs**. In the controlled comparison it reached **85.60%** test accuracy.
 
-![Custom CNN loss](images/custom_cnn_loss.png)
+Restricting the crop to `scale=(0.8, 1.0)` and increasing tuning to **6 epochs** improved the test result to **92.07%** without increasing the CNN depth.
 
-![Custom CNN accuracy](images/custom_cnn_accuracy.png)
+This suggests that the earlier performance loss was mainly related to the training setup rather than the simplified 3-layer architecture.
 
-### ResNet18
+## Augmentation Ablation Study
 
-![ResNet18 loss](images/resnet18_loss.png)
+| Augmentation Setting | Test Accuracy | Weighted F1 | Accuracy Change |
+|---|---:|---:|---:|
+| **Final baseline: crop + horizontal flip** | **92.07%** | **92.09%** | **0.00 pp** |
+| + Color Jitter | 91.48% | 91.49% | -0.59 pp |
+| + Vertical Flip | 89.83% | 89.95% | -2.25 pp |
+| + Rotation pipeline | 67.60% | 67.46% | -24.47 pp |
 
-![ResNet18 accuracy](images/resnet18_accuracy.png)
+The tested rotation pipeline also included resize-and-center-crop operations to avoid black borders, so its large decrease should **not** be interpreted as the isolated effect of rotation itself. It only shows that the tested rotation preprocessing pipeline was not suitable.
 
-## Confusion Matrix
+Because no additional augmentation outperformed the simpler baseline, the final model does **not** use VerticalFlip, Rotation, or ColorJitter.
 
-![Confusion matrix](images/confusion_matrix.png)
+## ResNet18 Comparison
 
-The most difficult class was **PermanentCrop**, with a recall of **70.67%**. It was most frequently predicted as **HerbaceousVegetation**. In the test set, **75 PermanentCrop images** were classified as HerbaceousVegetation.
+ResNet18 was pretrained on ImageNet. Its pretrained feature parameters were frozen and only the final classification layer was trained for the 10 EuroSAT classes.
 
-![Normalized confusion matrix](images/normalized_confusion_matrix.png)
-
-## Prediction Examples
-
-### Correct Predictions
-
-![Correct predictions](images/correct_predictions.png)
-
-### Misclassified Predictions
-
-![Misclassified predictions](images/misclassified_predictions.png)
-
-## Main Findings
-
-- The custom CNN achieved **92.22%** test accuracy.
-- Its weighted F1-score was **92.12%**.
-- ResNet18 achieved **78.67%** test accuracy in the frozen-feature setup.
-- Forest and SeaLake were among the easiest classes.
-- PermanentCrop was the most difficult class.
-- The largest confusion was PermanentCrop being predicted as HerbaceousVegetation.
+The final ResNet18 test accuracy was **82.44%**. This result applies to the frozen-feature setup and should not be interpreted as evidence that transfer learning is generally worse than a custom CNN. Fine-tuning some later ResNet layers could be explored in future work.
 
 ## Project Structure
 
@@ -113,14 +116,17 @@ Capstone-Project-Deep-Learning-with-PyTorch/
 ├── EuroSAT_Capstone_Project.ipynb
 ├── README.md
 ├── requirements.txt
-├── images/
 ├── results/
+│   ├── hyperparameter_results.csv
+│   ├── model_comparison.csv
+│   └── ablation_results.csv
 ├── report/
 ├── presentation/
+├── images/
 └── docs/
 ```
 
-## Installation and Running
+## Running the Notebook
 
 ```bash
 python -m venv venv
@@ -131,18 +137,16 @@ jupyter lab
 
 Open `EuroSAT_Capstone_Project.ipynb` and run the cells from top to bottom.
 
-The uploaded notebook already contains the completed outputs and figures.
+The notebook contains the final course-level code and recorded result summaries used for the project report.
 
-## Future Improvements
+## Final Conclusion
 
-- Unfreeze some ResNet18 feature layers
-- Use a larger input image size
-- Try ResNet34 or EfficientNet
-- Add Grad-CAM visualizations
-- Use more focused augmentation for difficult vegetation classes
+The final solution uses a **3-layer Custom CNN**, learning rate **0.0005**, batch size **32**, dropout **0.3**, restricted random crop, horizontal flipping, BatchNorm, and early stopping.
+
+The final held-out test accuracy is **92.07%** with a weighted F1-score of **92.09%**. The experiments also show that more preprocessing was not automatically better, so the project retains the simplest tested augmentation strategy that achieved the strongest result.
 
 ## Author
 
 **Name:** Jianye Chen  
 **College:** Fanshawe College  
-**Course:** Deep Learning Capstone  
+**Course:** Deep Learning Capstone
